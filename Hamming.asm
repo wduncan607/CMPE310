@@ -34,17 +34,17 @@ nullBit:
 outputPrep:
     mov al, bl
     add al, '0'
-    mov [distance], al
-    mov [distance+1], byte 10
+    mov ah, 10
+    mov [distance], ax
 
-        ;; print
+    ;; print
     mov eax, 4
     mov ebx, 1
     mov ecx, distance
     mov edx, 2
-        int 0x80
+    int 0x80
 
-        ;; exit
+    ;; exit
     mov eax, 1
     xor ebx, ebx
     int 0x80
