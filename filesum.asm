@@ -72,7 +72,7 @@ finish:
     mov eax, 4
     mov ebx, 1
     mov ecx, str1
-        mov edx, 12
+    mov edx, 12
     int 0x80
 
     mov eax, 4
