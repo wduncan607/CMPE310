@@ -1,69 +1,63 @@
 section .data
-    file db "randomInt100.txt", 0
-    nl db 10, 0
     msg db "Sum: ", 0
+    file db "randomInt100.txt", 0
+    newline db 10, 0
 
 section .bss
-    buf resb 1000
-    total resd 1
     num resd 1
     str1 resb 12
+    total resd 1
+    buf resb 1000
 
 section .text
     global _start
 
 _start:
-    ; Open file
     mov eax, 5
     mov ebx, file
-    mov ecx, 0
+    xor ecx, ecx
     int 0x80
 
     mov ebx, eax
-
-    ; Read file into buffer
     mov eax, 3
     mov ecx, buf
     mov edx, 1000
     int 0x80
+    mov ebp, eax
 
-    mov edx, eax
-
-    ; Init sum and num
-    mov dword [total], 0
-    mov dword [num], 0
+    xor eax, eax
+    mov [total], eax
+    mov [num], eax
     mov esi, buf
 
 loop:
-    mov al, [esi]
-    cmp al, 0
-    je finish
+    movzx eax, byte [esi]
+    test al, al
+    jz finish
     cmp al, '0'
-    jl delim
+    jb delim
     cmp al, '9'
-    jg delim
+    ja delim
 
     sub al, '0'
-    movzx eax, al
     mov ebx, [num]
-    imul ebx, ebx, 10
+    lea ebx, [ebx*4 + ebx]
+    add ebx, ebx
     add ebx, eax
     mov [num], ebx
-
     jmp next
 
 delim:
-    mov eax, [num]
-    add [total], eax
-    mov dword [num], 0
+    add [total], ebx
+    xor ebx, ebx
+    mov [num], ebx
 
 next:
     inc esi
     jmp loop
 
 finish:
-    mov eax, [num]
-    add [total], eax
+    add [total], ebx
 
     mov eax, [total]
     mov edi, str1
@@ -74,39 +68,35 @@ finish:
     mov ecx, msg
     mov edx, 5
     int 0x80
-    
+
     mov eax, 4
     mov ebx, 1
     mov ecx, str1
-    mov edx, 12
+        mov edx, 12
     int 0x80
-    
+
     mov eax, 4
     mov ebx, 1
-    mov ecx, nl
+    mov ecx, newline
     mov edx, 1
     int 0x80
-    
+
     mov eax, 1
     mov ebx, 0
     int 0x80
 
 to_str:
     mov ecx, 10
-    mov ebx, 0
     mov edi, str1 + 11
     mov byte [edi], 0
-    sub edi, 1
 
 conv:
-    mov edx, 0
+    dec edi
+    xor edx, edx
     div ecx
     add dl, '0'
     mov [edi], dl
-    dec edi
-    inc ebx
     test eax, eax
     jnz conv
 
-    inc edi
     ret
